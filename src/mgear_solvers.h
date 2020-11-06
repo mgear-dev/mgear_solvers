@@ -621,6 +621,55 @@ class mgear_vertexPosition : public MPxNode
 
 };
 
+class mgear_matrixConstraint : public MPxNode
+{
+public:
+
+	mgear_matrixConstraint();
+	virtual					~mgear_matrixConstraint();
+	static void* creator();
+
+	virtual MStatus			compute(const MPlug& plug, MDataBlock& data);
+	static MStatus			initialize();
+
+	static MTypeId			id;
+
+	virtual SchedulingType	schedulingType() const;
+
+	// ---------------------------------------------------
+	// input plugs
+	// ---------------------------------------------------
+	static MObject aDriverMatrix;
+	static MObject aDrivenParentInverseMatrix;
+	static MObject aDrivenRestMatrix;
+
+	// -----------------------------------------
+	// output attributes
+	// -----------------------------------------
+	static MObject aTranslate;
+	static MObject aTranslateX;
+	static MObject aTranslateY;
+	static MObject aTranslateZ;
+
+	static MObject aRotate;
+	static MObject aRotateX;
+	static MObject aRotateY;
+	static MObject aRotateZ;
+
+	static MObject aScale;
+	static MObject aScaleX;
+	static MObject aScaleY;
+	static MObject aScaleZ;
+
+	static MObject aShear;
+	static MObject aShearX;
+	static MObject aShearY;
+	static MObject aShearZ;
+
+	static MObject aOutputMatrix;
+
+};
+
 /////////////////////////////////////////////////
 // METHODS
 /////////////////////////////////////////////////

@@ -95,7 +95,8 @@ PLUGIN_EXPORT MStatus initializePlugin( MObject obj )
 	status = plugin.registerNode("mgear_vertexPosition", mgear_vertexPosition::id, mgear_vertexPosition::creator, mgear_vertexPosition::initialize);
 		if (!status) { status.perror("registerNode() failed."); return status; }
 
-
+	status = plugin.registerNode("mgear_matrixConstraint", mgear_matrixConstraint::id, mgear_matrixConstraint::creator, mgear_matrixConstraint::initialize);
+		if (!status) { status.perror("registerNode() failed."); return status; }
 
 	return status;
 }
@@ -140,7 +141,8 @@ PLUGIN_EXPORT MStatus uninitializePlugin( MObject obj)
 		if (!status) { status.perror("deregisterNode() failed."); return status; }
 	status = plugin.deregisterNode(mgear_vertexPosition::id);
 		if (!status) { status.perror("deregisterNode() failed."); return status; }
-
+	status = plugin.deregisterNode(mgear_matrixConstraint::id);
+		if (!status) { status.perror("deregisterNode() failed."); return status; }
 
 
 	return MS::kSuccess;
