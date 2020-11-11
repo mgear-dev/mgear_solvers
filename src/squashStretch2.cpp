@@ -219,10 +219,16 @@ MStatus mgear_squashStretch2::compute(const MPlug& plug, MDataBlock& data)
     MVector scl = MVector(sx, sy, sz);
     scl = linearInterpolate(gscale, scl, in_blend);
 
+	double clamp_value = 0.0001;
+
+	double scl_x = std::max(scl.x, clamp_value);
+	double scl_y = std::max(scl.y, clamp_value);
+	double scl_z = std::max(scl.z, clamp_value);
+
 	// Output
-    MDataHandle h = data.outputValue( output );
-	h.set3Float( (float)scl.x, (float)scl.y, (float)scl.z );
-    data.setClean( plug );
+	MDataHandle h = data.outputValue(output);
+	h.set3Float((float)scl_x, (float)scl_y, (float)scl_z);
+	data.setClean(plug);
 
 	return MS::kSuccess;
 }
