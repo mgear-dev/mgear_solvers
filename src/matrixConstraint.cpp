@@ -40,6 +40,16 @@ MObject mgear_matrixConstraint::aDriverMatrix;
 MObject mgear_matrixConstraint::aDrivenParentInverseMatrix;
 MObject mgear_matrixConstraint::aDrivenRestMatrix;
 
+MObject mgear_matrixConstraint::aRotationMultiplier;
+MObject mgear_matrixConstraint::aRotationMultiplierX;
+MObject mgear_matrixConstraint::aRotationMultiplierY;
+MObject mgear_matrixConstraint::aRotationMultiplierZ;
+
+MObject mgear_matrixConstraint::aScaleMultiplier;
+MObject mgear_matrixConstraint::aScaleMultiplierX;
+MObject mgear_matrixConstraint::aScaleMultiplierY;
+MObject mgear_matrixConstraint::aScaleMultiplierZ;
+
 // ---------------------------------------------------
 // output plugs
 // ---------------------------------------------------
@@ -82,6 +92,15 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 {
 	MStatus status;
 
+	// -- our needed variables
+	MTransformationMatrix result;
+	double scale[3];
+	double shear[3];
+
+	// -- our final output variables
+	double scale_result[3]{ 1.0, 1.0, 1.0 };
+	double shear_result[3];
+
 	// -----------------------------------------
 	// input attributes
 	// -----------------------------------------
@@ -89,10 +108,15 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MMatrix driven_inverse_matrix = data.inputValue(aDrivenParentInverseMatrix, &status).asMatrix();
 	MMatrix rest_matrix = data.inputValue(aDrivenRestMatrix, &status).asMatrix();
 
-	// -- our needed variables
-	MTransformationMatrix result;
-	double scale[3];
-	double shear[3];
+	// -- rotation multiplier
+	double in_rotation_multiplier_x{ data.inputValue(aRotationMultiplierX, &status).asDouble() };
+	double in_rotation_multiplier_y{ data.inputValue(aRotationMultiplierY, &status).asDouble() };
+	double in_rotation_multiplier_z{ data.inputValue(aRotationMultiplierZ, &status).asDouble() };
+
+	// -- scale multiplier
+	double in_scale_multiplier_x{ data.inputValue(aScaleMultiplierX, &status).asDouble() };
+	double in_scale_multiplier_y{ data.inputValue(aScaleMultiplierY, &status).asDouble() };
+	double in_scale_multiplier_z{ data.inputValue(aScaleMultiplierZ, &status).asDouble() };
 
 	MMatrix mult_matrix = driver_matrix * driven_inverse_matrix;
 	
@@ -107,9 +131,19 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MVector translation = matrix.getTranslation(MSpace::kWorld);
 	matrix.getScale(scale, MSpace::kWorld);
 	matrix.getShear(shear, MSpace::kWorld);
+
+	// -- add in the scale multiplication
+	scale[0] *= in_scale_multiplier_x;
+	scale[1] *= in_scale_multiplier_y;
+	scale[2] *= in_scale_multiplier_z;
 	
 	// -- the quaternion rotation of the rotate matrix
 	MQuaternion rotation = rotate_tfm.rotation();
+
+	// -- apply the rotation multiplier
+	rotation.x *= in_rotation_multiplier_x;
+	rotation.y *= in_rotation_multiplier_y;
+	rotation.z *= in_rotation_multiplier_z;
 
 	// -- compose our matrix
 	result.setTranslation(translation, MSpace::kWorld);
@@ -120,11 +154,6 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	// -----------------------------------------
 	// output
 	// -----------------------------------------
-
-	// -- our final output variables
-	double scale_result[3] = { 1.0, 1.0, 1.0 };
-	double shear_result[3];
-
 	MDataHandle matrix_handle = data.outputValue(aOutputMatrix, &status);
 	matrix_handle.setMMatrix(result.asMatrix());
 	data.setClean(aOutputMatrix);
@@ -177,6 +206,44 @@ MStatus mgear_matrixConstraint::initialize()
 	mAttr.setReadable(false);
 	mAttr.setWritable(true);
 	mAttr.setStorable(true);
+
+	aRotationMultiplierX = nAttr.create("rotationMultX", "rotationMultX", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-1.0);
+	nAttr.setMax(1.0);
+
+	aRotationMultiplierY = nAttr.create("rotationMultY", "rotationMultY", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-1.0);
+	nAttr.setMax(1.0);
+
+	aRotationMultiplierZ = nAttr.create("rotationMultZ", "rotationMultZ", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-1.0);
+	nAttr.setMax(1.0);
+
+	aRotationMultiplier = nAttr.create("rotationMultiplier", "rotationMultiplier", aRotationMultiplierX, aRotationMultiplierY, aRotationMultiplierZ);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(1.0, 1.0, 1.0);
+
+	aScaleMultiplierX = nAttr.create("scaleMultX", "scaleMultX", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-1.0);
+	nAttr.setMax(1.0);
+
+	aScaleMultiplierY = nAttr.create("scaleMultY", "scaleMultY", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-1.0);
+	nAttr.setMax(1.0);
+
+	aScaleMultiplierZ = nAttr.create("scaleMultZ", "scaleMultZ", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-1.0);
+	nAttr.setMax(1.0);
+
+	aScaleMultiplier = nAttr.create("scaleMultiplier", "scaleMultiplier", aScaleMultiplierX, aScaleMultiplierY, aScaleMultiplierZ);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(1.0, 1.0, 1.0);
 
 	// -----------------------------------------
 	// output attributes
@@ -257,6 +324,16 @@ MStatus mgear_matrixConstraint::initialize()
 	addAttribute(aDrivenParentInverseMatrix);
 	addAttribute(aDrivenRestMatrix);
 
+	addAttribute(aRotationMultiplier);
+	addAttribute(aRotationMultiplierX);
+	addAttribute(aRotationMultiplierY);
+	addAttribute(aRotationMultiplierZ);
+
+	addAttribute(aScaleMultiplier);
+	addAttribute(aScaleMultiplierX);
+	addAttribute(aScaleMultiplierY);
+	addAttribute(aScaleMultiplierZ);
+
 	addAttribute(aOutputMatrix);
 	
 	addAttribute(aTranslate);
@@ -285,6 +362,19 @@ MStatus mgear_matrixConstraint::initialize()
 	attributeAffects(aDriverMatrix, aOutputMatrix);
 	attributeAffects(aDrivenParentInverseMatrix, aOutputMatrix);
 	attributeAffects(aDrivenRestMatrix, aOutputMatrix);
+
+	attributeAffects(aRotationMultiplier, aOutputMatrix);
+	attributeAffects(aScaleMultiplier, aOutputMatrix);
+
+	attributeAffects(aScaleMultiplier, aTranslate);
+	attributeAffects(aScaleMultiplier, aRotate);
+	attributeAffects(aScaleMultiplier, aScale);
+	attributeAffects(aScaleMultiplier, aShear);
+
+	attributeAffects(aRotationMultiplier, aTranslate);
+	attributeAffects(aRotationMultiplier, aRotate);
+	attributeAffects(aRotationMultiplier, aScale);
+	attributeAffects(aRotationMultiplier, aShear);
 
 	attributeAffects(aDriverMatrix, aTranslate);
 	attributeAffects(aDriverMatrix, aRotate);
