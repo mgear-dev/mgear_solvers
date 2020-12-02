@@ -643,6 +643,16 @@ public:
 	static MObject aDrivenParentInverseMatrix;
 	static MObject aDrivenRestMatrix;
 
+	static MObject aRotationMultiplier;
+	static MObject aRotationMultiplierX;
+	static MObject aRotationMultiplierY;
+	static MObject aRotationMultiplierZ;
+
+	static MObject aScaleMultiplier;
+	static MObject aScaleMultiplierX;
+	static MObject aScaleMultiplierY;
+	static MObject aScaleMultiplierZ;
+
 	// -----------------------------------------
 	// output attributes
 	// -----------------------------------------
