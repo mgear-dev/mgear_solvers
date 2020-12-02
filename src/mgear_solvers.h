@@ -122,30 +122,30 @@ Date:       2016 / 10 / 10
 /////////////////////////////////////////////////
 struct s_GetFKTransform
 {
-   double lengthA;
-   double lengthB;
-   bool negate;
-   MTransformationMatrix root;
-   MTransformationMatrix bone1;
-   MTransformationMatrix bone2;
-   MTransformationMatrix eff;
+	double lengthA;
+	double lengthB;
+	bool negate;
+	MTransformationMatrix root;
+	MTransformationMatrix bone1;
+	MTransformationMatrix bone2;
+	MTransformationMatrix eff;
 };
 
 struct s_GetIKTransform
 {
-   double lengthA;
-   double lengthB;
-   bool negate;
-   double roll;
-   double scaleA;
-   double scaleB;
-   double maxstretch;
-   double softness;
-   double slide;
-   double reverse;
-   MTransformationMatrix root;
-   MTransformationMatrix eff;
-   MTransformationMatrix	 upv;
+	double lengthA;
+	double lengthB;
+	bool negate;
+	double roll;
+	double scaleA;
+	double scaleB;
+	double maxstretch;
+	double softness;
+	double slide;
+	double reverse;
+	MTransformationMatrix root;
+	MTransformationMatrix eff;
+	MTransformationMatrix	 upv;
 };
 
 /////////////////////////////////////////////////
@@ -154,13 +154,13 @@ struct s_GetIKTransform
 class mgear_slideCurve2 : public MPxDeformerNode
 {
 public:
-                    mgear_slideCurve2() {};
-    virtual MStatus deform( MDataBlock& data, MItGeometry& itGeo, const MMatrix &localToWorldMatrix, unsigned int mIndex );
-    virtual SchedulingType schedulingType() const;
-    static  void*   creator();
-    static  MStatus initialize();
+	mgear_slideCurve2() {};
+	virtual MStatus deform(MDataBlock& data, MItGeometry& itGeo, const MMatrix& localToWorldMatrix, unsigned int mIndex);
+	virtual SchedulingType schedulingType() const;
+	static  void* creator();
+	static  MStatus initialize();
 
-    static MTypeId      id;
+	static MTypeId      id;
 
 	// Input
 	static MObject	 master_crv;
@@ -178,28 +178,28 @@ public:
 class mgear_curveCns : public MPxDeformerNode
 {
 public:
-                    mgear_curveCns() {};
-    virtual MStatus deform( MDataBlock& data, MItGeometry& itGeo, const MMatrix &localToWorldMatrix, unsigned int mIndex );
-    virtual SchedulingType schedulingType() const;
-    static  void*   creator();
-    static  MStatus initialize();
+	mgear_curveCns() {};
+	virtual MStatus deform(MDataBlock& data, MItGeometry& itGeo, const MMatrix& localToWorldMatrix, unsigned int mIndex);
+	virtual SchedulingType schedulingType() const;
+	static  void* creator();
+	static  MStatus initialize();
 
-    static MTypeId      id;
-    static  MObject     inputs;
+	static MTypeId      id;
+	static  MObject     inputs;
 };
 
 class mgear_rollSplineKine : public MPxNode
 {
- public:
-      mgear_rollSplineKine();
-   virtual	 ~mgear_rollSplineKine();
+public:
+	mgear_rollSplineKine();
+	virtual	 ~mgear_rollSplineKine();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -219,16 +219,16 @@ class mgear_rollSplineKine : public MPxNode
 };
 class mgear_squashStretch2 : public MPxNode
 {
- public:
-      mgear_squashStretch2();
-   virtual	 ~mgear_squashStretch2();
+public:
+	mgear_squashStretch2();
+	virtual	 ~mgear_squashStretch2();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -253,16 +253,16 @@ class mgear_squashStretch2 : public MPxNode
 
 class mgear_percentageToU : public MPxNode
 {
- public:
-      mgear_percentageToU();
-   virtual	 ~mgear_percentageToU();
+public:
+	mgear_percentageToU();
+	virtual	 ~mgear_percentageToU();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -278,16 +278,16 @@ class mgear_percentageToU : public MPxNode
 
 class mgear_uToPercentage : public MPxNode
 {
- public:
-      mgear_uToPercentage();
-   virtual	 ~mgear_uToPercentage();
+public:
+	mgear_uToPercentage();
+	virtual	 ~mgear_uToPercentage();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -303,16 +303,16 @@ class mgear_uToPercentage : public MPxNode
 
 class mgear_spinePointAt : public MPxNode
 {
- public:
-      mgear_spinePointAt();
-   virtual	 ~mgear_spinePointAt();
+public:
+	mgear_spinePointAt();
+	virtual	 ~mgear_spinePointAt();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -334,16 +334,16 @@ class mgear_spinePointAt : public MPxNode
 
 class mgear_inverseRotOrder : public MPxNode
 {
- public:
-      mgear_inverseRotOrder();
-   virtual	 ~mgear_inverseRotOrder();
+public:
+	mgear_inverseRotOrder();
+	virtual	 ~mgear_inverseRotOrder();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -356,16 +356,16 @@ class mgear_inverseRotOrder : public MPxNode
 
 class mgear_mulMatrix : public MPxNode
 {
- public:
-      mgear_mulMatrix();
-   virtual	 ~mgear_mulMatrix();
+public:
+	mgear_mulMatrix();
+	virtual	 ~mgear_mulMatrix();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -379,16 +379,16 @@ class mgear_mulMatrix : public MPxNode
 
 class mgear_intMatrix : public MPxNode
 {
- public:
-      mgear_intMatrix();
-   virtual	 ~mgear_intMatrix();
+public:
+	mgear_intMatrix();
+	virtual	 ~mgear_intMatrix();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// ATTRIBUTES
@@ -405,18 +405,18 @@ class mgear_intMatrix : public MPxNode
 
 class mgear_ikfk2Bone : public MPxNode
 {
- public:
-      mgear_ikfk2Bone();
-   virtual	 ~mgear_ikfk2Bone();
+public:
+	mgear_ikfk2Bone();
+	virtual	 ~mgear_ikfk2Bone();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
-   MTransformationMatrix getIKTransform(s_GetIKTransform values, MString outportName);
-   MTransformationMatrix getFKTransform(s_GetFKTransform values, MString outportName);
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
+	MTransformationMatrix getIKTransform(s_GetIKTransform values, MString outportName);
+	MTransformationMatrix getFKTransform(s_GetFKTransform values, MString outportName);
 
- public:
+public:
 
 	// ATTRIBUTES
 	static MObject	 blend;
@@ -463,7 +463,7 @@ public:
 	mgear_add10scalarNode();
 	virtual			~mgear_add10scalarNode();
 	virtual SchedulingType schedulingType() const;
-	static	void*	creator();
+	static	void* creator();
 
 	virtual MStatus		compute(const MPlug& plug, MDataBlock& data);
 	static MStatus		initialize();
@@ -489,7 +489,7 @@ public:
 	mgear_linearInterpolate3DvectorNode();
 	virtual			~mgear_linearInterpolate3DvectorNode();
 	virtual SchedulingType schedulingType() const;
-	static	void*	creator();
+	static	void* creator();
 
 	virtual MStatus		compute(const MPlug& plug, MDataBlock& data);
 	static MStatus		initialize();
@@ -521,7 +521,7 @@ public:
 	mgear_springNode();
 	virtual			~mgear_springNode();
 	virtual SchedulingType schedulingType() const;
-	static	void*	creator();
+	static	void* creator();
 
 	virtual MStatus		compute(const MPlug& plug, MDataBlock& data);
 	static MStatus		initialize();
@@ -549,16 +549,16 @@ public:
 
 class mgear_rayCastPosition : public MPxNode
 {
- public:
-      mgear_rayCastPosition();
-   virtual	 ~mgear_rayCastPosition();
+public:
+	mgear_rayCastPosition();
+	virtual	 ~mgear_rayCastPosition();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -573,16 +573,16 @@ class mgear_rayCastPosition : public MPxNode
 
 class mgear_trigonometryAngle : public MPxNode
 {
- public:
-      mgear_trigonometryAngle();
-   virtual	 ~mgear_trigonometryAngle();
+public:
+	mgear_trigonometryAngle();
+	virtual	 ~mgear_trigonometryAngle();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -596,16 +596,16 @@ class mgear_trigonometryAngle : public MPxNode
 
 class mgear_vertexPosition : public MPxNode
 {
- public:
-      mgear_vertexPosition();
-   virtual	 ~mgear_vertexPosition();
+public:
+	mgear_vertexPosition();
+	virtual	 ~mgear_vertexPosition();
 
-   virtual MStatus compute( const MPlug& plug, MDataBlock& data );
-   virtual SchedulingType schedulingType() const;
-   static void* creator();
-   static MStatus initialize();
+	virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+	virtual SchedulingType schedulingType() const;
+	static void* creator();
+	static MStatus initialize();
 
- public:
+public:
 	static MTypeId id;
 
 	// Input
@@ -615,9 +615,9 @@ class mgear_vertexPosition : public MPxNode
 
 	// Output
 	static MObject	output;
-    static MObject	outputX;
-    static MObject	outputY;
-    static MObject	outputZ;
+	static MObject	outputX;
+	static MObject	outputY;
+	static MObject	outputZ;
 
 };
 
@@ -642,6 +642,16 @@ public:
 	static MObject aDriverMatrix;
 	static MObject aDrivenParentInverseMatrix;
 	static MObject aDrivenRestMatrix;
+
+	static MObject aRotationMultiplier;
+	static MObject aRotationMultiplierX;
+	static MObject aRotationMultiplierY;
+	static MObject aRotationMultiplierZ;
+
+	static MObject aScaleMultiplier;
+	static MObject aScaleMultiplierX;
+	static MObject aScaleMultiplierY;
+	static MObject aScaleMultiplierZ;
 
 	// -----------------------------------------
 	// output attributes
@@ -687,7 +697,7 @@ unsigned findClosestInArray(double value, MDoubleArray in_array);
 double set01range(double value, double first, double second);
 double linearInterpolate(double first, double second, double blend);
 MVector linearInterpolate(MVector v0, MVector v1, double blend);
-MVectorArray bezier4point( MVector a, MVector tan_a, MVector d, MVector tan_d, double u);
+MVectorArray bezier4point(MVector a, MVector tan_a, MVector d, MVector tan_d, double u);
 MVector rotateVectorAlongAxis(MVector v, MVector axis, double a);
 MQuaternion getQuaternionFromAxes(MVector vx, MVector vy, MVector vz);
 MTransformationMatrix mapWorldPoseToObjectSpace(MTransformationMatrix objectSpace, MTransformationMatrix pose);
