@@ -31,7 +31,7 @@ Date:       2020/ 11 / 06
 
 #include "mgear_solvers.h"
 
-MTypeId mgear_matrixConstraint::id(0x75759);
+MTypeId mgear_matrixConstraint::id(0x0011FEF0);
 
 // ---------------------------------------------------
 // input plugs
@@ -44,6 +44,11 @@ MObject mgear_matrixConstraint::aRotationMultiplier;
 MObject mgear_matrixConstraint::aRotationMultiplierX;
 MObject mgear_matrixConstraint::aRotationMultiplierY;
 MObject mgear_matrixConstraint::aRotationMultiplierZ;
+
+MObject mgear_matrixConstraint::aRotationOffset;
+MObject mgear_matrixConstraint::aRotationOffsetX;
+MObject mgear_matrixConstraint::aRotationOffsetY;
+MObject mgear_matrixConstraint::aRotationOffsetZ;
 
 MObject mgear_matrixConstraint::aScaleMultiplier;
 MObject mgear_matrixConstraint::aScaleMultiplierX;
@@ -113,20 +118,40 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	double in_rotation_multiplier_y{ data.inputValue(aRotationMultiplierY, &status).asDouble() };
 	double in_rotation_multiplier_z{ data.inputValue(aRotationMultiplierZ, &status).asDouble() };
 
+	// -- rotation offset
+	double in_rotation_offset_x{ data.inputValue(aRotationOffsetX, &status).asDouble() };
+	double in_rotation_offset_y{ data.inputValue(aRotationOffsetY, &status).asDouble() };
+	double in_rotation_offset_z{ data.inputValue(aRotationOffsetZ, &status).asDouble() };
+
 	// -- scale multiplier
 	double in_scale_multiplier_x{ data.inputValue(aScaleMultiplierX, &status).asDouble() };
 	double in_scale_multiplier_y{ data.inputValue(aScaleMultiplierY, &status).asDouble() };
 	double in_scale_multiplier_z{ data.inputValue(aScaleMultiplierZ, &status).asDouble() };
 
 	MMatrix mult_matrix = driver_matrix * driven_inverse_matrix;
-	
+
 	// -- multiply the result of the mult matrix by the rest
 	// -- need to have the rotation calculated seperaltely - (joint orientation)
 	MMatrix rotate_matrix = mult_matrix * rest_matrix.inverse();
 
 	MTransformationMatrix matrix(mult_matrix);
 	MTransformationMatrix rotate_tfm(rotate_matrix);
-	
+
+	// // -- add the rotation offset
+	MEulerRotation  euler_off(
+		degrees2radians(in_rotation_offset_x),
+		degrees2radians(in_rotation_offset_y),
+		degrees2radians(in_rotation_offset_z) );
+	MTransformationMatrix rotate_tfm_off = rotate_tfm.rotateBy(euler_off,  MSpace::kPreTransform);
+
+	// -- the quaternion rotation of the rotate matrix
+	MQuaternion rotation = rotate_tfm_off.rotation();
+
+	// -- apply the rotation multiplier
+	rotation.x *= in_rotation_multiplier_x;
+	rotation.y *= in_rotation_multiplier_y;
+	rotation.z *= in_rotation_multiplier_z;
+
 	// -- decompose the matrix values to construct into the final matrix
 	MVector translation = matrix.getTranslation(MSpace::kWorld);
 	matrix.getScale(scale, MSpace::kWorld);
@@ -136,14 +161,6 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	scale[0] *= in_scale_multiplier_x;
 	scale[1] *= in_scale_multiplier_y;
 	scale[2] *= in_scale_multiplier_z;
-	
-	// -- the quaternion rotation of the rotate matrix
-	MQuaternion rotation = rotate_tfm.rotation();
-
-	// -- apply the rotation multiplier
-	rotation.x *= in_rotation_multiplier_x;
-	rotation.y *= in_rotation_multiplier_y;
-	rotation.z *= in_rotation_multiplier_z;
 
 	// -- compose our matrix
 	result.setTranslation(translation, MSpace::kWorld);
@@ -225,6 +242,25 @@ MStatus mgear_matrixConstraint::initialize()
 	aRotationMultiplier = nAttr.create("rotationMultiplier", "rotationMultiplier", aRotationMultiplierX, aRotationMultiplierY, aRotationMultiplierZ);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1.0, 1.0, 1.0);
+
+	aRotationOffsetX = nAttr.create("rotationOffsetX", "rotationOffsetX", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-360.0);
+	nAttr.setMax(360.0);
+
+	aRotationOffsetY = nAttr.create("rotationOffsetY", "rotationOffsetY", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-360.0);
+	nAttr.setMax(360.0);
+
+	aRotationOffsetZ = nAttr.create("rotationOffsetZ", "rotationOffsetZ", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-360.0);
+	nAttr.setMax(360.0);
+
+	aRotationOffset = nAttr.create("rotationOffset", "rotationOffset", aRotationOffsetX, aRotationOffsetY, aRotationOffsetZ);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(0.0, 0.0, 0.0);
 
 	aScaleMultiplierX = nAttr.create("scaleMultX", "scaleMultX", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
@@ -329,13 +365,18 @@ MStatus mgear_matrixConstraint::initialize()
 	addAttribute(aRotationMultiplierY);
 	addAttribute(aRotationMultiplierZ);
 
+	addAttribute(aRotationOffset);
+	addAttribute(aRotationOffsetX);
+	addAttribute(aRotationOffsetY);
+	addAttribute(aRotationOffsetZ);
+
 	addAttribute(aScaleMultiplier);
 	addAttribute(aScaleMultiplierX);
 	addAttribute(aScaleMultiplierY);
 	addAttribute(aScaleMultiplierZ);
 
 	addAttribute(aOutputMatrix);
-	
+
 	addAttribute(aTranslate);
 	addAttribute(aTranslateX);
 	addAttribute(aTranslateY);
@@ -364,6 +405,7 @@ MStatus mgear_matrixConstraint::initialize()
 	attributeAffects(aDrivenRestMatrix, aOutputMatrix);
 
 	attributeAffects(aRotationMultiplier, aOutputMatrix);
+	attributeAffects(aRotationOffset, aOutputMatrix);
 	attributeAffects(aScaleMultiplier, aOutputMatrix);
 
 	attributeAffects(aScaleMultiplier, aTranslate);
@@ -375,6 +417,11 @@ MStatus mgear_matrixConstraint::initialize()
 	attributeAffects(aRotationMultiplier, aRotate);
 	attributeAffects(aRotationMultiplier, aScale);
 	attributeAffects(aRotationMultiplier, aShear);
+
+	attributeAffects(aRotationOffset, aTranslate);
+	attributeAffects(aRotationOffset, aRotate);
+	attributeAffects(aRotationOffset, aScale);
+	attributeAffects(aRotationOffset, aShear);
 
 	attributeAffects(aDriverMatrix, aTranslate);
 	attributeAffects(aDriverMatrix, aRotate);

@@ -648,6 +648,11 @@ public:
 	static MObject aRotationMultiplierY;
 	static MObject aRotationMultiplierZ;
 
+	static MObject aRotationOffset;
+	static MObject aRotationOffsetX;
+	static MObject aRotationOffsetY;
+	static MObject aRotationOffsetZ;
+
 	static MObject aScaleMultiplier;
 	static MObject aScaleMultiplierX;
 	static MObject aScaleMultiplierY;
