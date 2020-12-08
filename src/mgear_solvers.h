@@ -681,6 +681,7 @@ public:
 	static MObject aShearY;
 	static MObject aShearZ;
 
+	static MObject aDriverOffsetOutputMatrix;
 	static MObject aOutputMatrix;
 
 };

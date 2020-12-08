@@ -59,6 +59,7 @@ MObject mgear_matrixConstraint::aScaleMultiplierZ;
 // output plugs
 // ---------------------------------------------------
 MObject mgear_matrixConstraint::aOutputMatrix;
+MObject mgear_matrixConstraint::aDriverOffsetOutputMatrix;
 
 MObject mgear_matrixConstraint::aTranslate;
 MObject mgear_matrixConstraint::aTranslateX;
@@ -128,7 +129,20 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	double in_scale_multiplier_y{ data.inputValue(aScaleMultiplierY, &status).asDouble() };
 	double in_scale_multiplier_z{ data.inputValue(aScaleMultiplierZ, &status).asDouble() };
 
-	MMatrix mult_matrix = driver_matrix * driven_inverse_matrix;
+
+	// -- add the rotation offset.
+	// We need to add the offset on top of the driver matrix, to calculate the outputDriverOffsetMatrix and the
+	// the rest matrix correctly
+	MEulerRotation  euler_off(
+		degrees2radians(in_rotation_offset_x),
+		degrees2radians(in_rotation_offset_y),
+		degrees2radians(in_rotation_offset_z) );
+	MTransformationMatrix driver_matrix_tfm(driver_matrix);
+	MTransformationMatrix driver_matrix_off = driver_matrix_tfm.rotateBy(euler_off,  MSpace::kPreTransform);
+
+
+	// MMatrix mult_matrix = driver_matrix * driven_inverse_matrix;
+	MMatrix mult_matrix = driver_matrix_off.asMatrix() * driven_inverse_matrix;
 
 	// -- multiply the result of the mult matrix by the rest
 	// -- need to have the rotation calculated seperaltely - (joint orientation)
@@ -137,15 +151,10 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MTransformationMatrix matrix(mult_matrix);
 	MTransformationMatrix rotate_tfm(rotate_matrix);
 
-	// // -- add the rotation offset
-	MEulerRotation  euler_off(
-		degrees2radians(in_rotation_offset_x),
-		degrees2radians(in_rotation_offset_y),
-		degrees2radians(in_rotation_offset_z) );
-	MTransformationMatrix rotate_tfm_off = rotate_tfm.rotateBy(euler_off,  MSpace::kPreTransform);
 
 	// -- the quaternion rotation of the rotate matrix
-	MQuaternion rotation = rotate_tfm_off.rotation();
+	// MQuaternion rotation = rotate_tfm_off.rotation();
+	MQuaternion rotation = rotate_tfm.rotation();
 
 	// -- apply the rotation multiplier
 	rotation.x *= in_rotation_multiplier_x;
@@ -174,6 +183,9 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MDataHandle matrix_handle = data.outputValue(aOutputMatrix, &status);
 	matrix_handle.setMMatrix(result.asMatrix());
 	data.setClean(aOutputMatrix);
+	MDataHandle matrix_driver_off_handle = data.outputValue(aDriverOffsetOutputMatrix, &status);
+	matrix_driver_off_handle.setMMatrix(driver_matrix_off.asMatrix());
+	data.setClean(aDriverOffsetOutputMatrix);
 
 	MDataHandle translate_handle = data.outputValue(aTranslate, &status);
 	translate_handle.setMVector(result.getTranslation(MSpace::kWorld));
@@ -289,6 +301,11 @@ MStatus mgear_matrixConstraint::initialize()
 	mAttr.setWritable(true);
 	mAttr.setStorable(false);
 
+	aDriverOffsetOutputMatrix = mAttr.create("outputDriverOffsetMatrix", "outputDriverOffsetMatrix", MFnMatrixAttribute::kDouble);
+	mAttr.setKeyable(false);
+	mAttr.setWritable(true);
+	mAttr.setStorable(false);
+
 	// -- out translation
 	aTranslateX = nAttr.create("translateX", "translateX", MFnNumericData::kDouble);
 	nAttr.setWritable(false);
@@ -376,6 +393,7 @@ MStatus mgear_matrixConstraint::initialize()
 	addAttribute(aScaleMultiplierZ);
 
 	addAttribute(aOutputMatrix);
+	addAttribute(aDriverOffsetOutputMatrix);
 
 	addAttribute(aTranslate);
 	addAttribute(aTranslateX);
@@ -407,6 +425,12 @@ MStatus mgear_matrixConstraint::initialize()
 	attributeAffects(aRotationMultiplier, aOutputMatrix);
 	attributeAffects(aRotationOffset, aOutputMatrix);
 	attributeAffects(aScaleMultiplier, aOutputMatrix);
+
+	attributeAffects(aDriverMatrix, aDriverOffsetOutputMatrix);
+	// attributeAffects(aDrivenParentInverseMatrix, aDriverOffsetOutputMatrix);
+	// attributeAffects(aDrivenRestMatrix, aDriverOffsetOutputMatrix);
+	attributeAffects(aRotationOffset, aDriverOffsetOutputMatrix);
+
 
 	attributeAffects(aScaleMultiplier, aTranslate);
 	attributeAffects(aScaleMultiplier, aRotate);
