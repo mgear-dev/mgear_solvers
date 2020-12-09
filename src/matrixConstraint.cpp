@@ -37,6 +37,12 @@ MTypeId mgear_matrixConstraint::id(0x0011FEF0);
 // input plugs
 // ---------------------------------------------------
 MObject mgear_matrixConstraint::aDriverMatrix;
+
+MObject mgear_matrixConstraint::aDriverRotationOffset;
+MObject mgear_matrixConstraint::aDriverRotationOffsetX;
+MObject mgear_matrixConstraint::aDriverRotationOffsetY;
+MObject mgear_matrixConstraint::aDriverRotationOffsetZ;
+
 MObject mgear_matrixConstraint::aDrivenParentInverseMatrix;
 MObject mgear_matrixConstraint::aDrivenRestMatrix;
 
@@ -45,10 +51,6 @@ MObject mgear_matrixConstraint::aRotationMultiplierX;
 MObject mgear_matrixConstraint::aRotationMultiplierY;
 MObject mgear_matrixConstraint::aRotationMultiplierZ;
 
-MObject mgear_matrixConstraint::aRotationOffset;
-MObject mgear_matrixConstraint::aRotationOffsetX;
-MObject mgear_matrixConstraint::aRotationOffsetY;
-MObject mgear_matrixConstraint::aRotationOffsetZ;
 
 MObject mgear_matrixConstraint::aScaleMultiplier;
 MObject mgear_matrixConstraint::aScaleMultiplierX;
@@ -81,6 +83,11 @@ MObject mgear_matrixConstraint::aShearX;
 MObject mgear_matrixConstraint::aShearY;
 MObject mgear_matrixConstraint::aShearZ;
 
+// MObject mgear_matrixConstraint::aRestOrient;
+// MObject mgear_matrixConstraint::aRestOrientX;
+// MObject mgear_matrixConstraint::aRestOrientY;
+// MObject mgear_matrixConstraint::aRestOrientZ;
+
 mgear_matrixConstraint::mgear_matrixConstraint()
 {
 }
@@ -111,6 +118,12 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	// input attributes
 	// -----------------------------------------
 	MMatrix driver_matrix = data.inputValue(aDriverMatrix, &status).asMatrix();
+
+	// -- driver rotation offset
+	double in_driver_rotation_offset_x{ data.inputValue(aDriverRotationOffsetX, &status).asDouble() };
+	double in_driver_rotation_offset_y{ data.inputValue(aDriverRotationOffsetY, &status).asDouble() };
+	double in_driver_rotation_offset_z{ data.inputValue(aDriverRotationOffsetZ, &status).asDouble() };
+
 	MMatrix driven_inverse_matrix = data.inputValue(aDrivenParentInverseMatrix, &status).asMatrix();
 	MMatrix rest_matrix = data.inputValue(aDrivenRestMatrix, &status).asMatrix();
 
@@ -119,10 +132,6 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	double in_rotation_multiplier_y{ data.inputValue(aRotationMultiplierY, &status).asDouble() };
 	double in_rotation_multiplier_z{ data.inputValue(aRotationMultiplierZ, &status).asDouble() };
 
-	// -- rotation offset
-	double in_rotation_offset_x{ data.inputValue(aRotationOffsetX, &status).asDouble() };
-	double in_rotation_offset_y{ data.inputValue(aRotationOffsetY, &status).asDouble() };
-	double in_rotation_offset_z{ data.inputValue(aRotationOffsetZ, &status).asDouble() };
 
 	// -- scale multiplier
 	double in_scale_multiplier_x{ data.inputValue(aScaleMultiplierX, &status).asDouble() };
@@ -134,9 +143,9 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	// We need to add the offset on top of the driver matrix, to calculate the outputDriverOffsetMatrix and the
 	// the rest matrix correctly
 	MEulerRotation  euler_off(
-		degrees2radians(in_rotation_offset_x),
-		degrees2radians(in_rotation_offset_y),
-		degrees2radians(in_rotation_offset_z) );
+		degrees2radians(in_driver_rotation_offset_x),
+		degrees2radians(in_driver_rotation_offset_y),
+		degrees2radians(in_driver_rotation_offset_z) );
 	MTransformationMatrix driver_matrix_tfm(driver_matrix);
 	MTransformationMatrix driver_matrix_off = driver_matrix_tfm.rotateBy(euler_off,  MSpace::kPreTransform);
 
@@ -202,6 +211,10 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MDataHandle shear_handle = data.outputValue(aShear, &status);
 	shear_handle.set3Double(shear_result[0], shear_result[1], shear_result[2]);
 
+	MEulerRotation rotation_result = result.eulerRotation();
+	MDataHandle rotate_handle = data.outputValue(aRotate, &status);
+	rotate_handle.set3Double(rotation_result.x, rotation_result.y, rotation_result.z);
+
 	data.setClean(plug);
 
 	return MS::kSuccess;
@@ -223,6 +236,25 @@ MStatus mgear_matrixConstraint::initialize()
 	mAttr.setReadable(false);
 	mAttr.setWritable(true);
 	mAttr.setStorable(true);
+
+	aDriverRotationOffsetX = nAttr.create("driverRotationOffsetX", "driverRotationOffsetX", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-360.0);
+	nAttr.setMax(360.0);
+
+	aDriverRotationOffsetY = nAttr.create("driverRotationOffsetY", "driverRotationOffsetY", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-360.0);
+	nAttr.setMax(360.0);
+
+	aDriverRotationOffsetZ = nAttr.create("driverRotationOffsetZ", "driverRotationOffsetZ", MFnNumericData::kDouble);
+	nAttr.setKeyable(true);
+	nAttr.setMin(-360.0);
+	nAttr.setMax(360.0);
+
+	aDriverRotationOffset = nAttr.create("driverRotationOffset", "driverRotationOffset", aDriverRotationOffsetX, aDriverRotationOffsetY, aDriverRotationOffsetZ);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(0.0, 0.0, 0.0);
 
 	aDrivenParentInverseMatrix = mAttr.create("drivenParentInverseMatrix", "drivenParentInverseMatrix", MFnMatrixAttribute::kDouble);
 	mAttr.setKeyable(true);
@@ -255,24 +287,6 @@ MStatus mgear_matrixConstraint::initialize()
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1.0, 1.0, 1.0);
 
-	aRotationOffsetX = nAttr.create("rotationOffsetX", "rotationOffsetX", MFnNumericData::kDouble);
-	nAttr.setKeyable(true);
-	nAttr.setMin(-360.0);
-	nAttr.setMax(360.0);
-
-	aRotationOffsetY = nAttr.create("rotationOffsetY", "rotationOffsetY", MFnNumericData::kDouble);
-	nAttr.setKeyable(true);
-	nAttr.setMin(-360.0);
-	nAttr.setMax(360.0);
-
-	aRotationOffsetZ = nAttr.create("rotationOffsetZ", "rotationOffsetZ", MFnNumericData::kDouble);
-	nAttr.setKeyable(true);
-	nAttr.setMin(-360.0);
-	nAttr.setMax(360.0);
-
-	aRotationOffset = nAttr.create("rotationOffset", "rotationOffset", aRotationOffsetX, aRotationOffsetY, aRotationOffsetZ);
-	nAttr.setKeyable(true);
-	nAttr.setDefault(0.0, 0.0, 0.0);
 
 	aScaleMultiplierX = nAttr.create("scaleMultX", "scaleMultX", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
@@ -374,6 +388,12 @@ MStatus mgear_matrixConstraint::initialize()
 	// add attributes
 	// -----------------------------------------
 	addAttribute(aDriverMatrix);
+
+	addAttribute(aDriverRotationOffset);
+	addAttribute(aDriverRotationOffsetX);
+	addAttribute(aDriverRotationOffsetY);
+	addAttribute(aDriverRotationOffsetZ);
+
 	addAttribute(aDrivenParentInverseMatrix);
 	addAttribute(aDrivenRestMatrix);
 
@@ -382,10 +402,6 @@ MStatus mgear_matrixConstraint::initialize()
 	addAttribute(aRotationMultiplierY);
 	addAttribute(aRotationMultiplierZ);
 
-	addAttribute(aRotationOffset);
-	addAttribute(aRotationOffsetX);
-	addAttribute(aRotationOffsetY);
-	addAttribute(aRotationOffsetZ);
 
 	addAttribute(aScaleMultiplier);
 	addAttribute(aScaleMultiplierX);
@@ -423,13 +439,13 @@ MStatus mgear_matrixConstraint::initialize()
 	attributeAffects(aDrivenRestMatrix, aOutputMatrix);
 
 	attributeAffects(aRotationMultiplier, aOutputMatrix);
-	attributeAffects(aRotationOffset, aOutputMatrix);
+	attributeAffects(aDriverRotationOffset, aOutputMatrix);
 	attributeAffects(aScaleMultiplier, aOutputMatrix);
 
 	attributeAffects(aDriverMatrix, aDriverOffsetOutputMatrix);
 	// attributeAffects(aDrivenParentInverseMatrix, aDriverOffsetOutputMatrix);
 	// attributeAffects(aDrivenRestMatrix, aDriverOffsetOutputMatrix);
-	attributeAffects(aRotationOffset, aDriverOffsetOutputMatrix);
+	attributeAffects(aDriverRotationOffset, aDriverOffsetOutputMatrix);
 
 
 	attributeAffects(aScaleMultiplier, aTranslate);
@@ -442,10 +458,10 @@ MStatus mgear_matrixConstraint::initialize()
 	attributeAffects(aRotationMultiplier, aScale);
 	attributeAffects(aRotationMultiplier, aShear);
 
-	attributeAffects(aRotationOffset, aTranslate);
-	attributeAffects(aRotationOffset, aRotate);
-	attributeAffects(aRotationOffset, aScale);
-	attributeAffects(aRotationOffset, aShear);
+	attributeAffects(aDriverRotationOffset, aTranslate);
+	attributeAffects(aDriverRotationOffset, aRotate);
+	attributeAffects(aDriverRotationOffset, aScale);
+	attributeAffects(aDriverRotationOffset, aShear);
 
 	attributeAffects(aDriverMatrix, aTranslate);
 	attributeAffects(aDriverMatrix, aRotate);
