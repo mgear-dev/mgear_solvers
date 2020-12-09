@@ -211,10 +211,6 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MDataHandle shear_handle = data.outputValue(aShear, &status);
 	shear_handle.set3Double(shear_result[0], shear_result[1], shear_result[2]);
 
-	MEulerRotation rotation_result = result.eulerRotation();
-	MDataHandle rotate_handle = data.outputValue(aRotate, &status);
-	rotate_handle.set3Double(rotation_result.x, rotation_result.y, rotation_result.z);
-
 	data.setClean(plug);
 
 	return MS::kSuccess;
