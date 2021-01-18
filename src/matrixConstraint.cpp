@@ -111,7 +111,7 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	double shear[3];
 
 	// -- our final output variables
-	double scale_result[3]{ 1.0, 1.0, 1.0 };
+	double scale_result[3] = { 1.0, 1.0, 1.0 };
 	double shear_result[3];
 
 	// -----------------------------------------
@@ -120,23 +120,23 @@ MStatus mgear_matrixConstraint::compute(const MPlug& plug, MDataBlock& data)
 	MMatrix driver_matrix = data.inputValue(aDriverMatrix, &status).asMatrix();
 
 	// -- driver rotation offset
-	double in_driver_rotation_offset_x{ data.inputValue(aDriverRotationOffsetX, &status).asDouble() };
-	double in_driver_rotation_offset_y{ data.inputValue(aDriverRotationOffsetY, &status).asDouble() };
-	double in_driver_rotation_offset_z{ data.inputValue(aDriverRotationOffsetZ, &status).asDouble() };
+	double in_driver_rotation_offset_x = data.inputValue(aDriverRotationOffsetX, &status).asDouble();
+	double in_driver_rotation_offset_y = data.inputValue(aDriverRotationOffsetY, &status).asDouble();
+	double in_driver_rotation_offset_z = data.inputValue(aDriverRotationOffsetZ, &status).asDouble();
 
 	MMatrix driven_inverse_matrix = data.inputValue(aDrivenParentInverseMatrix, &status).asMatrix();
 	MMatrix rest_matrix = data.inputValue(aDrivenRestMatrix, &status).asMatrix();
 
 	// -- rotation multiplier
-	double in_rotation_multiplier_x{ data.inputValue(aRotationMultiplierX, &status).asDouble() };
-	double in_rotation_multiplier_y{ data.inputValue(aRotationMultiplierY, &status).asDouble() };
-	double in_rotation_multiplier_z{ data.inputValue(aRotationMultiplierZ, &status).asDouble() };
+	double in_rotation_multiplier_x = data.inputValue(aRotationMultiplierX, &status).asDouble();
+	double in_rotation_multiplier_y = data.inputValue(aRotationMultiplierY, &status).asDouble();
+	double in_rotation_multiplier_z = data.inputValue(aRotationMultiplierZ, &status).asDouble();
 
 
 	// -- scale multiplier
-	double in_scale_multiplier_x{ data.inputValue(aScaleMultiplierX, &status).asDouble() };
-	double in_scale_multiplier_y{ data.inputValue(aScaleMultiplierY, &status).asDouble() };
-	double in_scale_multiplier_z{ data.inputValue(aScaleMultiplierZ, &status).asDouble() };
+	double in_scale_multiplier_x = data.inputValue(aScaleMultiplierX, &status).asDouble();
+	double in_scale_multiplier_y = data.inputValue(aScaleMultiplierY, &status).asDouble();
+	double in_scale_multiplier_z = data.inputValue(aScaleMultiplierZ, &status).asDouble();
 
 
 	// -- add the rotation offset.
