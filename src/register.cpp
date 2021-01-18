@@ -42,7 +42,7 @@ Date:       2016 / 10 / 10
 PLUGIN_EXPORT MStatus initializePlugin( MObject obj )
 {
 	MStatus status;
-	MFnPlugin plugin( obj, "Jeremie Passerin, Miquel Campos", "2.1.0", "Any");
+	MFnPlugin plugin( obj, "Jeremie Passerin, Miquel Campos, Jascha Wohlkinger", "2.2.0", "Any");
 
 	status = plugin.registerNode( "mgear_curveCns", mgear_curveCns::id, mgear_curveCns::creator, mgear_curveCns::initialize, MPxNode::kDeformerNode );
 		if (!status) {status.perror("registerNode() failed."); return status;}
