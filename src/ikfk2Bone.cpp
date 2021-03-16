@@ -596,8 +596,10 @@ MTransformationMatrix mgear_ikfk2Bone::getIKTransform(s_GetIKTransform data, MSt
     double restLength = (data.lengthA * data.scaleA + data.lengthB * data.scaleB) * global_scale;
     double distance = rootEffDistance;
     double distance2 = distance;
-    if (distance > (restLength * data.maxstretch))
-        distance = restLength * data.maxstretch;
+    double stretch = 1.0;
+	if (distance > restLength)
+		stretch = std::max(1.0, ((distance / restLength-1)*data.maxstretch)+1);
+
 
     // Adapt Softness value to chain length --------
     data.softness = data.softness * restLength * .1;
@@ -605,11 +607,11 @@ MTransformationMatrix mgear_ikfk2Bone::getIKTransform(s_GetIKTransform data, MSt
     // Stretch and softness ------------------------
     // We use the real distance from root to controler to calculate the softness
     // This way we have softness working even when there is no stretch
-    double stretch = std::max(1.0, distance / restLength);
+    double dampLength = rootEffDistance;
     double da = restLength - data.softness;
     if ((data.softness > 0) && (distance2 > da)){
         double newlen = data.softness*(1.0 - exp(-(distance2 -da)/data.softness)) + da;
-        stretch = distance / newlen;
+        dampLength = newlen * stretch;
 	}
 
     data.lengthA = data.lengthA * stretch * data.scaleA * global_scale;
@@ -645,11 +647,11 @@ MTransformationMatrix mgear_ikfk2Bone::getIKTransform(s_GetIKTransform data, MSt
 
     // check if the divider is not null otherwise the result is nan
     // and the output disapear from xsi, that breaks constraints
-    if ((rootEffDistance < data.lengthA + data.lengthB) && (rootEffDistance > abs(data.lengthA - data.lengthB) + 1E-6)){
+    if ((dampLength < data.lengthA + data.lengthB) && (dampLength > abs(data.lengthA - data.lengthB) + 1E-6)){
 
         // use the law of cosine for lengthA
         double a = data.lengthA;
-        double b = rootEffDistance;
+        double b = dampLength;
         double c = data.lengthB;
 
         angleA = acos(std::min(1.0, (a * a + b * b - c * c ) / ( 2 * a * b)));
@@ -657,7 +659,7 @@ MTransformationMatrix mgear_ikfk2Bone::getIKTransform(s_GetIKTransform data, MSt
         // use the law of cosine for lengthB
         a = data.lengthB;
         b = data.lengthA;
-        c = rootEffDistance;
+        c = dampLength;
         angleB = acos(std::min(1.0, (a * a + b * b - c * c ) / ( 2 * a * b)));
 
         // invert the angles if need be
